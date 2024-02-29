@@ -1,0 +1,59 @@
+# SQL CTE example to find the average amount paid by the top 5 customers
+
+SET lc_messages TO 'en_US';
+WITH total_paid_cte (customer_id, city, country, last_name, first_name) AS
+(SELECT
+A.last_name,
+A.first_name,
+C.city,
+D.country,
+A.customer_id,
+SUM(E.amount) AS total_paid_amount
+from customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_id = D.country_id
+INNER JOIN payment E ON A.customer_id = E.customer_id
+WHERE city IN ('Aurora', 'Acua', 'Citrus Heights', 'Iwaki', 
+'Ambattur', 'Shanwei', 'So Leopoldo', 'Teboksary', 'Tianjinj', 'Cianjur')
+GROUP BY A.first_name, A.last_name, C.city, D.country, A.customer_id
+ORDER BY total_paid_amount DESC
+LIMIT 5) 
+SELECT AVG(total_paid_amount)
+FROM total_paid_cte
+
+
+
+#  SQL CTE example to find out how many of the top 5 customers you identified in step above are based within each country
+
+SET lc_messages TO 'en_US';
+WITH top_five_cte (customer_id, last_name, first_name, city, country) AS
+(SELECT
+A.customer_id,
+A.last_name,
+A.first_name,
+C.city,
+D.country,
+SUM(E.amount) AS total_paid_amount
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_id = D.country_id
+INNER JOIN payment E ON A.customer_id = E.customer_id
+WHERE city IN ('Aurora', 'Acua', 'Citrus Heights', 'Iwaki', 
+'Ambattur', 'Shanwei', 'So Leopoldo', 'Teboksary', 'Tianjinj', 'Cianjur')
+GROUP BY A.customer_id, A.last_name, A.first_name, C.city, D.country
+ORDER BY total_paid_amount DESC
+LIMIT 5) 
+SELECT 
+D.country,
+Count(Distinct A.customer_id) AS all_customer_count,
+Count(top_five_cte) AS top_customer_count
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_id = D.country_id
+INNER JOIN top_five_cte ON A.customer_id = top_five_cte.customer_id
+GROUP BY D.country 
+ORDER BY all_customer_count DESC 
+Limit 5;
