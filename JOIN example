@@ -1,4 +1,4 @@
-# SQL JOIN query to find the top 5 customers from the top 10 cities who’ve paid the highest total amounts to Rockbuster
+# SQL JOIN query to find top 5 customers from top 10 cities who’ve paid the highest total amounts to Rockbuster
 
 SET lc_messages TO 'en_US';
 SELECT
